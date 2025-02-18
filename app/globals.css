@@ -31,3 +31,75 @@ body {
     text-wrap: balance;
   }
 }
+
+.chat-container {
+  width: 400px; /* 幅を調整 */
+  height: 600px; /* 高さを調整 */
+  border: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-list {
+  flex: 1;
+  overflow-y: scroll;
+  padding: 10px;
+}
+
+.message {
+  display: flex;
+  margin-bottom: 10px;
+  align-items: flex-end; /* メッセージとタイムスタンプを揃える */
+}
+
+.my-message {
+  justify-content: flex-end; /* 自分のメッセージは右寄せ */
+}
+
+.message-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%; /* アイコンを丸くする */
+  margin-right: 10px;
+}
+
+.message-content {
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #eee;
+  max-width: 70%; /* メッセージが長すぎる場合に折り返す */
+}
+
+.my-message .message-content {
+  background-color: #00b050; /* 自分のメッセージは緑色 */
+  color: #fff;
+}
+
+.message-time {
+  font-size: 12px;
+  color: #999;
+  margin-left: 5px;
+}
+
+.input-area {
+  padding: 10px;
+  display: flex;
+  border-top: 1px solid #ccc; /* 入力エリア上部に線を引く */
+}
+
+.input-area input {
+  flex: 1;
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 5px; /* 入力欄を角丸にする */
+}
+
+.input-area button {
+  background-color: #00b050;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  margin-left: 5px;
+  border-radius: 5px; /* ボタンを角丸にする */
+  cursor: pointer;
+}

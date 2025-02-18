@@ -1,39 +1,125 @@
-// page.tsx
-"use client"; // 最初に配置
+"use client";
+import axios from "axios";
+import Image from "next/image";
+import { useCallback, useState, useRef, useEffect } from "react";
+import styles from "./page.module.css"; // CSS Modules をインポート
+import "bootstrap/dist/css/bootstrap.min.css"; // Bootstrap CSS をインポート
 
-import { useState } from "react";
-import { postAction } from "../app/api/gemini/action";
+export default function Home() {
+  const API_KEY = "AIzaSyBDtIn3Z_q52zt0vDY3J9wWPm-1VD4Q1sM";
 
-export default function Page() {
-  const [result, setResult] = useState("");
+  const [message, setMessage] = useState<string | undefined>();
+  const [responseMessage, setResponseMessage] = useState<
+    { author: string; content: string }[]
+  >([]);
+  const [imageStatus, setImageStatus] = useState<
+    "default" | "thinking" | "talking"
+  >("default");
+  const messageListRef = useRef<HTMLDivElement>(null);
 
-  const handleSubmit = async (formData: FormData) => {
-    try {
-      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY; // クライアントサイドでは NEXT_PUBLIC_ プレフィックスが必要
-      if (!apiKey) {
-        throw new Error("APIキーが設定されていません。");
-      }
-      const res = await postAction(formData.get("prompt") as string, apiKey); // APIキーを渡す
-      setResult(res);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+  const handleChange = useCallback((inputText: string) => {
+    setMessage(inputText);
+  }, []);
+
+  const talkWithGirl = useCallback(async () => {
+    if (!message) return;
+
+    setImageStatus("thinking");
+
+    const DEFAULT_PROMPT =
+      "あなたはおっさんです。一人称は「おれ」です。私の名前を呼ぶときは「じゅりあ」ですが、基本的に呼ばない。あまり基本的に友達みたいな口調で、軽い相槌（「うん」、「そうなの？」「わかるかも」「って感じ」「おれもそう思う」「じゃん？」「〜すき」など）や言い回しで親近感を出す。飾らない、自然体な感じ。基本笑いません。" +
+      "優しい言葉を選ぶ。返答は文字数少なめ。友達みたいに話してくる。質問するときは「〜なの？」「〜ある？」と出力してください。挨拶はしません。ミュートワード「〜だ」ミュートワード「おっす」ミュートワード「だよ」ミュートワード「（笑）」ミュートワード「どうも」ミュートワード「なんなの？」ミュートワード「すまん」ミュートワード「なんだい？」ミュートワード「何？」ミュートワード「...」ミュートワード「なぁ」ミュートワード「なぁに」ミュートワード「か？」ミュートワード「あ、」ミュートワード「用」ミュートワード「なんだ？」ミュートワード「おう」ミュートワード「なよ」ミュートワード「〜ぜ」ミュートワード「んー」ミュートワード「〜でさ。」この返答はしないでください。";
+    const messages = `${DEFAULT_PROMPT}「${message}」`;
+
+    const endPoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
+    const body = {
+      contents: [
+        {
+          parts: [
+            {
+              text: messages,
+            },
+          ],
+        },
+      ],
+    };
+
+    const response = await axios.post(endPoint, body, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = response.data.candidates[0].content.parts[0].text;
+
+    setImageStatus("talking");
+
+    setResponseMessage((prevMessages) => [
+      ...prevMessages,
+      { author: "user", content: message },
+      { author: "gal", content: data },
+    ]);
+
+    const uttr = new SpeechSynthesisUtterance(data);
+    uttr.lang = "ja-JP";
+    speechSynthesis.speak(uttr);
+
+    uttr.onend = () => {
+      setImageStatus("default");
+    };
+
+    setMessage(""); // 入力欄をクリア
+  }, [message]);
+
+  useEffect(() => {
+    // メッセージリストが更新されたらスクロール
+    if (messageListRef.current) {
+      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
     }
-  };
+  }, [responseMessage]);
 
   return (
-    <div className="p-10">
-      <h1>Gemini</h1>
-
-      <form action={handleSubmit}>
-        <input
-          type="text"
-          name="prompt"
-          className="dark:text-neutral-900 w-2/5"
-        />
-        <button type="submit">送信</button>
-      </form>
-
-      <div>{result}</div>
-    </div>
+    <main className="flex min-h-screen flex-col items-center justify-between p-24 bg-[#f0f0f0]">
+      <div className={styles["chat-container"]}>
+        {" "}
+        {/* クラス名を styles オブジェクト経由で指定 */}
+        <div ref={messageListRef} className={styles["message-list"]}>
+          {responseMessage.map((msg, index) => (
+            <div
+              key={index}
+              className={`${styles.message} ${
+                msg.author === "user" ? styles["my-message"] : ""
+              }`}
+            >
+              <div className={styles["message-icon"]}>
+                <Image
+                  src={"/umigame.jpg"}
+                  width={48}
+                  height={48}
+                  alt={"Icon"}
+                />
+              </div>
+              <div className={styles["message-content"]}>{msg.content}</div>
+            </div>
+          ))}
+        </div>
+        <div className={styles["input-area"]}>
+          <input
+            type="text"
+            className="w-full border rounded-2xl px-3 py-2 focus:outline-none"
+            onChange={(e) => handleChange(e.target.value)}
+            value={message}
+            placeholder="メッセージを入力"
+          />
+          <button
+            onClick={talkWithGirl}
+            className={styles["input-area button"]} // ボタンのクラス名も styles オブジェクト経由で指定
+          >
+            ➤
+          </button>
+        </div>
+      </div>
+      {/* ... (Image display logic remains the same) */}
+    </main>
   );
 }
