@@ -1,6 +1,5 @@
 "use client";
 import axios from "axios";
-import Image from "next/image";
 import { useCallback, useState, useRef, useEffect } from "react";
 import styles from "./page.module.css"; // CSS Modules をインポート
 import "bootstrap/dist/css/bootstrap.min.css"; // Bootstrap CSS をインポート
@@ -12,9 +11,7 @@ export default function Home() {
   const [responseMessage, setResponseMessage] = useState<
     { author: string; content: string }[]
   >([]);
-  const [imageStatus, setImageStatus] = useState<
-    "default" | "thinking" | "talking"
-  >("default");
+
   const messageListRef = useRef<HTMLDivElement>(null);
 
   const handleChange = useCallback((inputText: string) => {
@@ -23,8 +20,6 @@ export default function Home() {
 
   const talkWithGirl = useCallback(async () => {
     if (!message) return;
-
-    setImageStatus("thinking");
 
     const DEFAULT_PROMPT =
       "あなたはおっさんです。一人称は「おれ」です。私の名前を呼ぶときは「じゅりあ」ですが、基本的に呼ばない。あまり基本的に友達みたいな口調で、軽い相槌（「うん」、「そうなの？」「って感じ」「おれもそう思う」「じゃん？」「〜すき」「〜なの」など）や言い回しで親近感を出す。飾らない、自然体な感じ。基本笑いません。" +
@@ -53,8 +48,6 @@ export default function Home() {
 
     const data = response.data.candidates[0].content.parts[0].text;
 
-    setImageStatus("talking");
-
     setResponseMessage((prevMessages) => [
       ...prevMessages,
       { author: "user", content: message },
@@ -64,10 +57,6 @@ export default function Home() {
     const uttr = new SpeechSynthesisUtterance(data);
     uttr.lang = "ja-JP";
     speechSynthesis.speak(uttr);
-
-    uttr.onend = () => {
-      setImageStatus("default");
-    };
 
     setMessage(""); // 入力欄をクリア
   }, [message]);
