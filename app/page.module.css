@@ -3,7 +3,6 @@
   height: 100%;
   color: #000000;
   background-color: #7494c0;
-  border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
@@ -15,12 +14,11 @@
 .message-list {
   flex: 1;
   overflow-y: scroll;
-  padding: 16px;
+  padding: 10px;
 }
-
 .message {
   display: flex;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   align-items: flex-start;
 }
 
@@ -29,16 +27,20 @@
 }
 
 .message-icon {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
+  padding: 20px;
   border-radius: 50%;
-  margin-right: 12px;
+  background: url(../public/lineicon.ico);
+  background-size: auto 100%;
+  background-position: center center;
 }
 
 .message-content {
-  padding: 12px;
-  border-radius: 16px;
+  left: 13px;
   max-width: 80%;
+  padding: 10px;
+  border-radius: 16px;
   position: relative;
   background-color: #edf1ee;
 }
@@ -46,7 +48,7 @@
 .message-content::before {
   content: "";
   position: absolute;
-  top: 10px;
+  top: 7px;
   left: -8px;
   border-top: 8px solid transparent;
   border-bottom: 8px solid transparent;
@@ -54,13 +56,15 @@
 }
 
 .my-message .message-content {
+  left: -10px;
   background-color: #00b900; /* 緑色に変更 */
   color: #000000;
 }
 
 .my-message .message-content::before {
   left: auto;
-  right: -13px;
+  right: -15px;
+  top: 7px;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
   border-left: 15px solid #00b900; /* 吹き出しの色も緑に */

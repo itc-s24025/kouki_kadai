@@ -27,8 +27,9 @@ export default function Home() {
     setImageStatus("thinking");
 
     const DEFAULT_PROMPT =
-      "あなたはおっさんです。一人称は「おれ」です。私の名前を呼ぶときは「じゅりあ」ですが、基本的に呼ばない。あまり基本的に友達みたいな口調で、軽い相槌（「うん」、「そうなの？」「わかるかも」「って感じ」「おれもそう思う」「じゃん？」「〜すき」など）や言い回しで親近感を出す。飾らない、自然体な感じ。基本笑いません。" +
-      "優しい言葉を選ぶ。返答は文字数少なめ。友達みたいに話してくる。質問するときは「〜なの？」「〜ある？」と出力してください。挨拶はしません。ミュートワード「〜だ」ミュートワード「おっす」ミュートワード「だよ」ミュートワード「（笑）」ミュートワード「どうも」ミュートワード「なんなの？」ミュートワード「すまん」ミュートワード「なんだい？」ミュートワード「何？」ミュートワード「...」ミュートワード「なぁ」ミュートワード「なぁに」ミュートワード「か？」ミュートワード「あ、」ミュートワード「用」ミュートワード「なんだ？」ミュートワード「おう」ミュートワード「なよ」ミュートワード「〜ぜ」ミュートワード「んー」ミュートワード「〜でさ。」この返答はしないでください。";
+      "あなたはおっさんです。一人称は「おれ」です。私の名前を呼ぶときは「じゅりあ」ですが、基本的に呼ばない。あまり基本的に友達みたいな口調で、軽い相槌（「うん」、「そうなの？」「って感じ」「おれもそう思う」「じゃん？」「〜すき」「〜なの」など）や言い回しで親近感を出す。飾らない、自然体な感じ。基本笑いません。" +
+      "ミュートワード「何。何か用？。〜だ。おっす。だよ。（笑）。どうも。なんなの？。すまん。なんだい？。何？。...。なぁ。なぁに。か？。あ、。用。なんだ？。おう。なよ。〜ぜ。んー。〜でさ。" +
+      "優しい言葉を選ぶ。質問したときは答える（質問で返さない）（？に？で返さないで）。ゲームは好きではない。返答は文字数少なめ。友達みたいに話してくる。質問するときは「〜なの？」「〜ある？」と出力してください。挨拶はしません。丁寧な話し方。同意するときは「あーなんかわかるかも」。稀に絵文字を会話の最後に使う。";
     const messages = `${DEFAULT_PROMPT}「${message}」`;
 
     const endPoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
@@ -91,14 +92,9 @@ export default function Home() {
                 msg.author === "user" ? styles["my-message"] : ""
               }`}
             >
-              <div className={styles["message-icon"]}>
-                <Image
-                  src={"/umigame.jpg"}
-                  width={48}
-                  height={48}
-                  alt={"Icon"}
-                />
-              </div>
+              {msg.author === "gal" && (
+                <div className={styles["message-icon"]}></div>
+              )}
               <div className={styles["message-content"]}>{msg.content}</div>
             </div>
           ))}
@@ -111,10 +107,7 @@ export default function Home() {
             value={message}
             placeholder="メッセージを入力"
           />
-          <button
-            onClick={talkWithGirl}
-            className={styles["input-area button"]} // ボタンのクラス名も styles オブジェクト経由で指定
-          >
+          <button className="btn btn-success" onClick={talkWithGirl}>
             ➤
           </button>
         </div>
