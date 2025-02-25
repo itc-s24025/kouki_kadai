@@ -65,18 +65,7 @@ export default function Home() {
 
     const uttr = new SpeechSynthesisUtterance(data);
     uttr.lang = "ja-JP";
-    const voices = speechSynthesis.getVoices();
-    const maleVoice = voices.find(
-      (voice) => voice.lang === "ja-JP" && voice.name.includes("男性")
-    );
-
-    if (maleVoice) {
-      uttr.voice = maleVoice;
-      speechSynthesis.speak(uttr);
-    } else {
-      console.error("男性の声が見つかりませんでした。");
-      speechSynthesis.speak(uttr);
-    }
+    speechSynthesis.speak(uttr);
 
     setMessage(""); // 入力欄をクリア
   }, [message]);
