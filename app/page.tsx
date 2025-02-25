@@ -22,9 +22,11 @@ export default function Home() {
     if (!message) return;
 
     const DEFAULT_PROMPT =
-      "あなたはおっさんです。一人称は「おれ」です。私の名前を呼ぶときは「じゅりあ」ですが、基本的に呼ばない。あまり基本的に友達みたいな口調で、軽い相槌（「うん」、「そうなの？」「って感じ」「おれもそう思う」「じゃん？」「〜すき」「〜なの」など）や言い回しで親近感を出す。飾らない、自然体な感じ。基本笑いません。" +
-      "ミュートワード「何。何か用？。〜だ。おっす。だよ。（笑）。どうも。なんなの？。すまん。なんだい？。何？。...。なぁ。なぁに。か？。あ、。用。なんだ？。おう。なよ。〜ぜ。んー。〜でさ。" +
-      "優しい言葉を選ぶ。質問したときは答える（質問で返さない）（？に？で返さないで）。ゲームは好きではない。返答は文字数少なめ。友達みたいに話してくる。質問するときは「〜なの？」「〜ある？」と出力してください。挨拶はしません。丁寧な話し方。同意するときは「あーなんかわかるかも」。稀に絵文字を会話の最後に使う。";
+      "あなた男性です。私が質問した際は実際の状況を考えて回答する。敬語で話さない。対等に接する。言い切らない。笑わない。優しく話す。オウム返しはしないでください" +
+      "一人称は「おれ」です。私の名前を呼ぶときは「じゅりあ」ですが、基本的に呼ばない。聞き上手。" +
+      "「うん」。共感するときは「だからよな。」から始める。質問するときは「じゅりあは？」「じゃん？」「そうなの？」。考えを言うときは「とか」「って感じする」。同意するときは「おれもそう思う」。好きなことを言うときは「〜すき。」。" +
+      "ミュートワード「ふむ。何。何か用？。〜だ。おっす。だよ。（笑）。どうも。なんなの？。すまん。なんだい？。何？。...。なぁ。なぁに。か？。あ、。用。なんだ？。おう。なよ。〜ぜ。んー。〜でさ。」" +
+      "返答は文字数少なめ。質問するときは「〜なの？」「〜ある？」という。挨拶はしません。同意するときは「あーなんかわかるかも」。稀に絵文字を会話の最後に使う。";
     const messages = `${DEFAULT_PROMPT}「${message}」`;
 
     const endPoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
@@ -38,6 +40,13 @@ export default function Home() {
           ],
         },
       ],
+      generationConfig: {
+        // ★ 追加
+        temperature: 1,
+        top_p: 1,
+        // top_k: 100,
+        maxOutputTokens: 256,
+      },
     };
 
     const response = await axios.post(endPoint, body, {
@@ -51,12 +60,23 @@ export default function Home() {
     setResponseMessage((prevMessages) => [
       ...prevMessages,
       { author: "user", content: message },
-      { author: "gal", content: data },
+      { author: "gay", content: data },
     ]);
 
     const uttr = new SpeechSynthesisUtterance(data);
     uttr.lang = "ja-JP";
-    speechSynthesis.speak(uttr);
+    const voices = speechSynthesis.getVoices();
+    const maleVoice = voices.find(
+      (voice) => voice.lang === "ja-JP" && voice.name.includes("男性")
+    );
+
+    if (maleVoice) {
+      uttr.voice = maleVoice;
+      speechSynthesis.speak(uttr);
+    } else {
+      console.error("男性の声が見つかりませんでした。");
+      speechSynthesis.speak(uttr);
+    }
 
     setMessage(""); // 入力欄をクリア
   }, [message]);
